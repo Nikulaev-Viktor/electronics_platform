@@ -1,4 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+
+from users.models import NULLABLE
 
 
 class Supplier(models.Model):
@@ -17,17 +20,24 @@ class Supplier(models.Model):
     house_number = models.CharField(max_length=150, verbose_name='дом', help_text='Введите номер дома')
     level = models.PositiveSmallIntegerField(choices=LEVEL_CHOICES, verbose_name='уровень в сети',
                                              help_text='Выберите уровень')
-    supplier = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='поставщик', related_name='suppliers')
+    supplier = models.ForeignKey('self', on_delete=models.CASCADE, verbose_name='поставщик', related_name='suppliers',
+                                 **NULLABLE, help_text='Выберите поставщика')
     debt = models.DecimalField(max_digits=10, decimal_places=2, default=0.00,
                                verbose_name='задолженность перед поставщиком')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='создан')
+
+    def clean(self):
+        if self.level == 0 and self.debt:
+            raise ValidationError('Завод не может иметь задолженность перед поставщиком')
+        if self.level == 0 and self.supplier:
+            raise ValidationError('Завод не должен иметь поставщика')
 
     def __str__(self):
         return f'{self.name} ({self.country})'
 
     class Meta:
-        verbose_name = 'поставщик'
-        verbose_name_plural = 'поставщики'
+        verbose_name = 'звено сети'
+        verbose_name_plural = 'звенья сети'
 
 
 class Product(models.Model):
@@ -37,7 +47,7 @@ class Product(models.Model):
     release_date = models.DateField(verbose_name='дата выхода продукта на рынок',
                                     help_text='Введите дату выхода продукта на рынок')
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, verbose_name='поставщик',
-                                 help_text='Выберите поставщика')
+                                 help_text='Выберите поставщика', related_name='products')
 
     def __str__(self):
         return f'{self.product_name} - {self.model}'
