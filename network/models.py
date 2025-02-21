@@ -5,6 +5,7 @@ from users.models import NULLABLE
 
 
 class Supplier(models.Model):
+    """Модель поставщика(Звено сети)"""
     LEVEL_CHOICES = (
         (0, 'завод'),
         (1, 'розничная сеть'),
@@ -41,6 +42,7 @@ class Supplier(models.Model):
 
 
 class Product(models.Model):
+    """Модель продукта"""
     product_name = models.CharField(max_length=255, verbose_name='название продукта',
                                     help_text='Введите название продукта')
     model = models.CharField(max_length=255, verbose_name='модель', help_text='Введите модель')
