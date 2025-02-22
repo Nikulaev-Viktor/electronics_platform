@@ -7,6 +7,7 @@ from network.models import Supplier, Product
 
 @admin.register(Supplier)
 class SupplierAdmin(admin.ModelAdmin):
+    """Админка поставщиков."""
     list_display = (
         'id', 'name', 'email', 'country', 'city', 'street', 'level', 'debt', 'supplier_link')
     search_fields = ('name', 'email', 'country', 'city', 'street', 'house_number', 'supplier__name')
@@ -28,6 +29,7 @@ class SupplierAdmin(admin.ModelAdmin):
 
     @admin.action(description='Очистить задолженность перед поставщиком')
     def clear_debt(self, request, queryset):
+        """Очищает задолженность перед поставщиком."""
         count = queryset.update(debt=0)
         self.message_user(request, f'Задолженность перед поставщиком была очищена у {count} объектов',
                           messages.ERROR)
@@ -35,6 +37,7 @@ class SupplierAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    """Админка продуктов."""
     list_display = ('id', 'product_name', 'model', 'supplier', 'release_date')
     search_fields = ('product_name', 'model', 'supplier__name')
     list_filter = ('supplier', 'release_date')
